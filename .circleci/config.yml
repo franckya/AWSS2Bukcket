@@ -1,0 +1,43 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+
+      # Install Terraform
+      - run:
+          name: Install Terraform
+          command: |
+            TERRAFORM_VERSION="0.14.0"  # Replace with the desired Terraform version
+            wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+            unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+            sudo mv terraform /usr/local/bin/
+
+      # Authenticate with AWS (optional, if needed)
+      # - run:
+      #     name: Configure AWS Credentials
+      #     command: |
+      #       echo "AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY_ID>" >> $BASH_ENV
+      #       echo "AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_ACCESS_KEY>" >> $BASH_ENV
+      #       echo "AWS_DEFAULT_REGION=us-east-1" >> $BASH_ENV
+
+      # Validate Terraform configuration
+      - run:
+          name: Terraform Validate
+          command: |
+            terraform init
+            terraform validate
+
+      # Plan Terraform configuration
+      - run:
+          name: Terraform Plan
+          command: terraform plan
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
